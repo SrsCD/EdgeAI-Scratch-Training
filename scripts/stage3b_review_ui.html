@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stage 3B six-class review</title>
+<style>
+  :root{font:15px system-ui,sans-serif;color:#1a2230;background:#f2f4f7}
+  body{margin:0} header{background:#132238;color:white;padding:12px 18px;display:flex;gap:18px;align-items:center}
+  header strong{font-size:18px} .layout{display:grid;grid-template-columns:235px minmax(520px,1fr) 335px;gap:12px;padding:12px;max-width:1800px;margin:auto}
+  section,aside{background:white;border:1px solid #d3d9e2;border-radius:9px;padding:12px;min-width:0}
+  h2{font-size:16px;margin:0 0 9px} h3{font-size:14px;margin:12px 0 5px} p{margin:6px 0;line-height:1.35}
+  button,input,select,textarea{font:inherit} button{border:1px solid #aab6c6;background:#fff;border-radius:5px;padding:6px 9px;cursor:pointer}
+  button.primary{background:#2457a6;color:white;border-color:#2457a6} button:disabled{opacity:.45;cursor:default}
+  input,select,textarea{box-sizing:border-box;width:100%;padding:5px;border:1px solid #aab6c6;border-radius:4px}
+  label{display:block;margin:7px 0} label.check{display:flex;gap:7px;align-items:flex-start} label.check input{width:auto;margin:3px 0 0}
+  .row{display:flex;gap:6px;align-items:center}.row>*{flex:1}.row button{flex:none}
+  #items{height:70vh;overflow:auto;border:1px solid #d3d9e2;border-radius:5px}
+  .item{display:flex;justify-content:space-between;padding:5px 7px;border-bottom:1px solid #eee;cursor:pointer}
+  .item.active{background:#dbeafe}.item small{color:#566}
+  canvas{width:auto;height:auto;max-width:100%;max-height:70vh;border:1px solid #c6cedb;background:#202735;touch-action:none;cursor:crosshair}
+  .canvas-wrap{display:flex;justify-content:center;align-items:center;min-height:340px}
+  .muted{color:#667084}.warn{color:#9b310d;font-weight:600}.good{color:#086245;font-weight:600}
+  .box-fields{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.box-fields label{margin:2px 0;font-size:12px}
+  .controls{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0} .controls button{flex:1}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  #message{min-height:22px;margin-top:8px} code{font-size:12px;word-break:break-all}
+  @media(max-width:1100px){.layout{grid-template-columns:200px 1fr}.review{grid-column:1/-1}}
+</style>
+<header><strong>Stage 3B · six-class review</strong><span>Local-only · every image starts unapproved</span><span id="progress"></span></header>
+<div class="layout">
+<aside>
+  <h2>Pilot queue</h2>
+  <label>Source <select id="sourceFilter"><option value="">All</option></select></label>
+  <label>Status <select id="statusFilter"><option value="">All</option><option>Pending</option><option>Correct</option><option>Hold</option><option>Approve</option><option>Reject</option></select></label>
+  <label>Find ID <input id="search" placeholder="P0001"></label>
+  <div class="row"><button id="prev">← Previous</button><button id="next">Next →</button></div>
+  <div id="items"></div>
+</aside>
+<section>
+  <h2 id="title">Select an image</h2><p class="muted" id="sourceInfo"></p>
+  <div class="canvas-wrap"><canvas id="canvas"></canvas></div>
+  <div class="controls"><button id="selectMode">Select / move / resize</button><button id="drawMode">Draw new box</button><button id="deleteBox">Delete selected box</button></div>
+  <p class="muted">Draw: drag on image. Select: click a box to move it, or drag its lower-right handle to resize. Use Delete to remove. Review all visible instances of all six classes.</p>
+  <div class="two"><label>Class for new or selected box<select id="boxClass"></select></label><label>Selected box <input id="selectedIndex" readonly></label></div>
+  <div class="box-fields"><label>cx<input id="cx" type="number" step="0.0001" min="0" max="1"></label><label>cy<input id="cy" type="number" step="0.0001" min="0" max="1"></label><label>w<input id="bw" type="number" step="0.0001" min="0" max="1"></label><label>h<input id="bh" type="number" step="0.0001" min="0" max="1"></label></div>
+  <p id="boxCount"></p>
+</section>
+<section class="review">
+  <h2>Decision and evidence</h2>
+  <p class="warn">Source boxes are provisional. Approval requires actual review of pixels, rights, and related images.</p>
+  <p><b>Review flags:</b> <span id="flags"></span></p>
+  <p><b>Source claim:</b> <span id="license"></span> · <a id="sourceLink" target="_blank" rel="noopener">project page</a></p>
+  <p><b>Group hint:</b> <code id="groupHint"></code></p>
+  <label>Reviewer name <input id="reviewer" autocomplete="name"></label>
+  <label class="check"><input type="checkbox" id="taxonomy">Boxes and six fixed class definitions checked</label>
+  <label class="check"><input type="checkbox" id="complete">Entire image checked for all six classes; missing targets corrected</label>
+  <label class="check"><input type="checkbox" id="rights">Underlying image and annotation use rights verified</label>
+  <label>Rights evidence / original source URL <textarea id="rightsEvidence" rows="2" placeholder="Record specific source and basis; a dataset badge alone is insufficient"></textarea></label>
+  <label class="check"><input type="checkbox" id="groupResolved">Related images/scene/video checked; final group ID resolved</label>
+  <label>Final source-group ID <input id="groupId" placeholder="e.g. siteA_camera3_2024-05-01"></label>
+  <label class="check"><input type="checkbox" id="negative">Verified no target object (only for empty labels)</label>
+  <label>Notes / reject reason <textarea id="notes" rows="3"></textarea></label>
+  <div class="controls"><button id="hold">Save Hold</button><button id="correct">Save Correct</button><button id="reject">Reject</button><button class="primary" id="approve">Approve</button></div>
+  <p id="message"></p>
+</section>
+</div>
+<script>
+const names=['person','helmet','safety_vest','backpack','knife','pistol'];
+const colors=['#29bf70','#d59b22','#ee731d','#31a7d7','#d83a9f','#9b58df'];
+const $=id=>document.getElementById(id); const canvas=$('canvas'),ctx=canvas.getContext('2d');
+let queue=[],item=null,review=null,boxes=[],imageObj=new Image(),selected=-1,mode='select',drag=null,visible=[];
+function api(url,options){return fetch(url,options).then(async r=>{let x=await r.json();if(!r.ok)throw Error(x.error||r.statusText);return x})}
+function setMessage(t,bad=false){$('message').textContent=t;$('message').className=bad?'warn':'good'}
+function filtered(){let s=$('sourceFilter').value,t=$('statusFilter').value,q=$('search').value.trim().toLowerCase();return queue.filter(x=>(!s||x.source===s)&&(!t||x.status===t)&&(!q||x.id.toLowerCase().includes(q)))}
+function renderList(){visible=filtered();$('items').innerHTML='';for(let x of visible){let d=document.createElement('div');d.className='item'+(item&&x.id===item.id?' active':'');d.innerHTML='<span>'+x.id+' <small>'+x.source.replace('_roboflow','')+'</small></span><small>'+x.status+'</small>';d.onclick=()=>openItem(x.id);$('items').append(d)}let counts={};queue.forEach(x=>counts[x.status]=(counts[x.status]||0)+1);$('progress').textContent=`${queue.length} queued · ${counts.Approve||0} approved · ${counts.Pending||0} pending`}
+async function loadQueue(){queue=await api('/api/queue');let src=[...new Set(queue.map(x=>x.source))];for(let s of src){let o=document.createElement('option');o.value=s;o.textContent=s;$('sourceFilter').append(o)}renderList();if(queue.length)await openItem(queue[0].id)}
+async function openItem(id){let x=await api('/api/item?id='+encodeURIComponent(id));item=x.item;review=x.review;boxes=structuredClone(review?review.boxes:item.provisional_boxes);selected=-1;drag=null;mode='select';$('title').textContent=`${item.id} · ${item.source}`;$('sourceInfo').textContent=`${item.archive} · ${item.image_path_in_zip} · original split ${item.source_split}`;$('flags').textContent=item.review_flags;$('license').textContent=item.source_license_claim;$('sourceLink').href=item.source_url;$('groupHint').textContent=item.source_group_hint;
+  $('reviewer').value=review?.reviewer||$('reviewer').value||'';$('taxonomy').checked=review?.taxonomy_checked||false;$('complete').checked=review?.six_class_checked||false;$('rights').checked=review?.rights_verified||false;$('rightsEvidence').value=review?.rights_evidence||'';$('groupResolved').checked=review?.group_resolved||false;$('groupId').value=review?.final_group_id||'';$('negative').checked=review?.verified_negative||false;$('notes').value=review?.notes||'';setMessage(review?`Saved: ${review.decision} by ${review.reviewer}`:'Pending review');imageObj=new Image();imageObj.onload=()=>{canvas.width=imageObj.naturalWidth;canvas.height=imageObj.naturalHeight;paint()};imageObj.src='/image/'+id;showSelection();renderList()}
+function paint(){if(!imageObj.complete||!canvas.width)return;ctx.drawImage(imageObj,0,0,canvas.width,canvas.height);boxes.forEach((b,i)=>{let x=(b.cx-b.w/2)*canvas.width,y=(b.cy-b.h/2)*canvas.height,w=b.w*canvas.width,h=b.h*canvas.height;ctx.strokeStyle=colors[b.class_id];ctx.lineWidth=i===selected?4:2;ctx.strokeRect(x,y,w,h);ctx.fillStyle=colors[b.class_id];ctx.fillRect(x,y-19,Math.max(42,names[b.class_id].length*8),19);ctx.fillStyle='white';ctx.font='14px system-ui';ctx.fillText(names[b.class_id],x+3,y-5);if(i===selected){ctx.fillStyle='#fff';ctx.fillRect(x+w-6,y+h-6,12,12);ctx.strokeRect(x+w-6,y+h-6,12,12)}});if(drag?.kind==='draw'){let x=Math.min(drag.startX,drag.x),y=Math.min(drag.startY,drag.y);ctx.strokeStyle=colors[Number($('boxClass').value)];ctx.lineWidth=2;ctx.strokeRect(x,y,Math.abs(drag.x-drag.startX),Math.abs(drag.y-drag.startY))}$('boxCount').textContent=`${boxes.length} boxes · ${mode} mode`}
+function showSelection(){let b=boxes[selected];$('selectedIndex').value=b?`${selected+1} of ${boxes.length}`:'None';for(let [key,id] of [['cx','cx'],['cy','cy'],['w','bw'],['h','bh']])$(id).value=b?b[key].toFixed(6):'';if(b)$('boxClass').value=b.class_id;paint()}
+function pos(e){let r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height}}
+function hit(x,y){for(let i=boxes.length-1;i>=0;i--){let b=boxes[i],x1=(b.cx-b.w/2)*canvas.width,y1=(b.cy-b.h/2)*canvas.height,x2=(b.cx+b.w/2)*canvas.width,y2=(b.cy+b.h/2)*canvas.height;if(Math.abs(x-x2)<14&&Math.abs(y-y2)<14)return{i,kind:'resize'};if(x>=x1&&x<=x2&&y>=y1&&y<=y2)return{i,kind:'move'}}return null}
+canvas.onpointerdown=e=>{if(!item)return;canvas.setPointerCapture(e.pointerId);let p=pos(e);if(mode==='draw'){drag={kind:'draw',startX:p.x,startY:p.y,x:p.x,y:p.y};return}let h=hit(p.x,p.y);selected=h?h.i:-1;showSelection();if(h)drag={kind:h.kind,startX:p.x,startY:p.y,orig:structuredClone(boxes[h.i])}};
+canvas.onpointermove=e=>{if(!drag)return;let p=pos(e);if(drag.kind==='draw'){drag.x=p.x;drag.y=p.y;paint();return}let b=boxes[selected],o=drag.orig,dx=(p.x-drag.startX)/canvas.width,dy=(p.y-drag.startY)/canvas.height;if(drag.kind==='move'){b.cx=Math.max(o.w/2,Math.min(1-o.w/2,o.cx+dx));b.cy=Math.max(o.h/2,Math.min(1-o.h/2,o.cy+dy))}else{let x1=o.cx-o.w/2,y1=o.cy-o.h/2,x2=Math.max(x1+.003,Math.min(1,o.cx+o.w/2+dx)),y2=Math.max(y1+.003,Math.min(1,o.cy+o.h/2+dy));b.cx=(x1+x2)/2;b.cy=(y1+y2)/2;b.w=x2-x1;b.h=y2-y1}showSelection()};
+canvas.onpointerup=e=>{if(!drag)return;if(drag.kind==='draw'){let p=pos(e),x1=Math.max(0,Math.min(drag.startX,p.x)),x2=Math.min(canvas.width,Math.max(drag.startX,p.x)),y1=Math.max(0,Math.min(drag.startY,p.y)),y2=Math.min(canvas.height,Math.max(drag.startY,p.y));if(x2-x1>=3&&y2-y1>=3){boxes.push({class_id:Number($('boxClass').value),cx:(x1+x2)/(2*canvas.width),cy:(y1+y2)/(2*canvas.height),w:(x2-x1)/canvas.width,h:(y2-y1)/canvas.height});selected=boxes.length-1}}drag=null;showSelection()};
+$('boxClass').onchange=()=>{if(selected>=0){boxes[selected].class_id=Number($('boxClass').value);paint()}};
+for(let [field,id] of [['cx','cx'],['cy','cy'],['w','bw'],['h','bh']])$(id).onchange=()=>{if(selected<0)return;let v=Number($(id).value);if(!Number.isFinite(v))return;let old=boxes[selected][field];boxes[selected][field]=v;let b=boxes[selected];if(b.w<=0||b.h<=0||b.cx-b.w/2<0||b.cy-b.h/2<0||b.cx+b.w/2>1||b.cy+b.h/2>1){boxes[selected][field]=old;setMessage('Coordinate is outside image',true)}showSelection()};
+$('selectMode').onclick=()=>{mode='select';paint()};$('drawMode').onclick=()=>{mode='draw';selected=-1;showSelection()};$('deleteBox').onclick=()=>{if(selected>=0){boxes.splice(selected,1);selected=-1;showSelection()}};
+window.onkeydown=e=>{if((e.key==='Delete'||e.key==='Backspace')&&document.activeElement===canvas&&selected>=0){boxes.splice(selected,1);selected=-1;showSelection()}};
+async function save(decision){if(!item)return;let payload={id:item.id,decision,reviewer:$('reviewer').value,boxes,notes:$('notes').value,rights_evidence:$('rightsEvidence').value,final_group_id:$('groupId').value,taxonomy_checked:$('taxonomy').checked,six_class_checked:$('complete').checked,rights_verified:$('rights').checked,group_resolved:$('groupResolved').checked,verified_negative:$('negative').checked};try{let r=await api('/api/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});setMessage(`Saved ${r.decision} for ${r.id}`);let q=queue.find(x=>x.id===item.id);q.status=decision;q.box_count=boxes.length;renderList()}catch(e){setMessage(e.message,true)}}
+for(let d of ['hold','correct','reject','approve'])$(d).onclick=()=>save(d[0].toUpperCase()+d.slice(1));
+$('sourceFilter').onchange=renderList;$('statusFilter').onchange=renderList;$('search').oninput=renderList;
+function step(delta){let list=filtered();let i=list.findIndex(x=>item&&x.id===item.id);if(!list.length)return;openItem(list[Math.max(0,Math.min(list.length-1,i+delta))].id)}$('prev').onclick=()=>step(-1);$('next').onclick=()=>step(1);
+for(let [i,n] of names.entries()){let o=document.createElement('option');o.value=i;o.textContent=`${i} ${n}`;$('boxClass').append(o)}
+loadQueue().catch(e=>setMessage(e.message,true));
+</script>
+</html>

@@ -1,0 +1,13 @@
+# EXPERIMENTAL / NOT FULLY HUMAN-VERIFIED
+path: data/experimental/stage3c_v1
+train: images/train
+val: images/val
+test: images/test
+nc: 6
+names:
+  0: person
+  1: helmet
+  2: safety_vest
+  3: backpack
+  4: knife
+  5: pistol

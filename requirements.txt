@@ -1,0 +1,9 @@
+# Install a compatible PyTorch/torchvision pair for CPU or CUDA first; see README.
+ultralytics==8.3.233
+numpy==2.2.6
+Pillow==12.0.0
+ImageHash==4.3.2
+pycocotools==2.0.11
+PyYAML>=6.0,<7
+matplotlib>=3.10,<4
+opencv-python>=4.11,<6

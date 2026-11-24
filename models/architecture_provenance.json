@@ -1,0 +1,14 @@
+{
+  "source_url": "https://github.com/ultralytics/ultralytics/blob/v8.3.233/ultralytics/cfg/models/11/yolo11.yaml",
+  "package": "ultralytics==8.3.233",
+  "license": "AGPL-3.0; review Ultralytics license obligations before distribution",
+  "license_url": "https://github.com/ultralytics/ultralytics/blob/v8.3.233/LICENSE",
+  "source_sha256": "43d8a7c86acc77282ddf4966d6526e091e5b064c140ed4a6e4c0b68ecbc3784c",
+  "generated_sha256": "cfef81e558b212e6f4061f20419fab431066707720bf1e14286180f38c696c61",
+  "changes": [
+    "nc: 6",
+    "scale: n",
+    "YAML serialized from installed yaml_model_load output"
+  ],
+  "weights_loaded": false
+}

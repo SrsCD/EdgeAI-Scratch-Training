@@ -1,0 +1,22 @@
+# Stage 3 scratch-training proposal. Do not run until the acceptance gate passes.
+model: configs/yolo11n.yaml
+data: configs/stage3_unified_data.yaml
+pretrained: false
+resume: false
+device: 0
+seed: 42
+deterministic: true
+imgsz: 640
+batch: 2
+workers: 0
+epochs: 150
+patience: 30
+cache: false
+val: true
+split: val
+plots: true
+save: true
+project: runs
+name: scratch_yolo11n_stage3
+# Disable the Ultralytics AMP check, which can fetch a pretrained reference model.
+amp: false

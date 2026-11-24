@@ -1,0 +1,9 @@
+{
+  "status": "planned_only_no_images",
+  "target_images": 10000,
+  "seed": 42,
+  "ratios": {"train": 0.7, "test": 0.2, "val": 0.1},
+  "approximate_counts": {"train": 7000, "test": 2000, "val": 1000},
+  "group_by": ["capture_session", "video", "scene", "duplicate_cluster"],
+  "test_policy": "Freeze manifest and checksum before development; use val for all tuning; evaluate test only after configuration and checkpoint are locked."
+}

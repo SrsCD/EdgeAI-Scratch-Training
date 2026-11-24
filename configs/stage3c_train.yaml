@@ -1,0 +1,21 @@
+# Separate provisional-label scratch experiment; never use approved preflight as proxy.
+model: configs/yolo11n.yaml
+data: configs/stage3c_data.yaml
+pretrained: false
+resume: false
+device: 0
+seed: 42
+deterministic: true
+imgsz: 640
+batch: 2
+workers: 0
+epochs: 150
+patience: 30
+cache: false
+val: true
+split: val
+plots: true
+save: true
+project: runs
+name: scratch_yolo11n_stage3c_experimental
+amp: false

@@ -1,0 +1,8 @@
+﻿annotation_status,ground_truth,person,helmet,safety_vest,backpack,knife,pistol,background
+EXPERIMENTAL / NOT FULLY HUMAN-VERIFIED; provisional annotations,person,6,0,2,0,0,1,147
+EXPERIMENTAL / NOT FULLY HUMAN-VERIFIED; provisional annotations,helmet,0,150,4,16,0,2,276
+EXPERIMENTAL / NOT FULLY HUMAN-VERIFIED; provisional annotations,safety_vest,0,0,342,9,0,0,132
+EXPERIMENTAL / NOT FULLY HUMAN-VERIFIED; provisional annotations,backpack,0,4,7,184,0,1,19
+EXPERIMENTAL / NOT FULLY HUMAN-VERIFIED; provisional annotations,knife,0,2,0,0,11,2,134
+EXPERIMENTAL / NOT FULLY HUMAN-VERIFIED; provisional annotations,pistol,0,2,0,3,0,318,300
+EXPERIMENTAL / NOT FULLY HUMAN-VERIFIED; provisional annotations,background,11,80,226,101,10,225,0
